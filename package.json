@@ -19,5 +19,10 @@
   "bugs": {
     "url": "https://github.com/susisu/Avocore/issues"
   },
-  "homepage": "https://github.com/susisu/Avocore"
+  "homepage": "https://github.com/susisu/Avocore",
+  "dependencies": {
+    "commander": "^2.8.1",
+    "cron": "^1.0.9",
+    "request": "^2.55.0"
+  }
 }
