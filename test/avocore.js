@@ -5,4 +5,4 @@
 
 "use strict";
 
-require("./actions.js");
+require("./core.js");

@@ -1,5 +1,5 @@
 /*
- * Avocore / test : actions.js
+ * Avocore / test : core.js
  * copyright (c) 2015 Susisu
  */
 
@@ -9,14 +9,14 @@ var chai  = require("chai");
 
 var expect = chai.expect;
 
-var actions = require("../lib/actions.js");
+var core = require("../lib/core.js");
 
-describe("actions", function () {
+describe("core", function () {
     describe("Action", function () {
         describe("#run(callback)", function () {
             it("should run the action", function () {
                 var x = false;
-                var action = new actions.Action(function (emit) {
+                var action = new core.Action(function (emit) {
                     x = true;
                     emit(undefined);
                 });
@@ -25,7 +25,7 @@ describe("actions", function () {
             });
 
             it("should call the given function", function () {
-                var action = new actions.Action(function (emit) {
+                var action = new core.Action(function (emit) {
                     emit(true);
                 });
                 action.run(function (value) {
@@ -36,7 +36,7 @@ describe("actions", function () {
             it("should run the action independently", function () {
                 var x = (function () {
                     var arr = [];
-                    var action = new actions.Action(function (emit) {
+                    var action = new core.Action(function (emit) {
                         emit(1);
                         emit(2);
                     });
@@ -51,13 +51,13 @@ describe("actions", function () {
 
                 var y = (function () {
                     var arr = [];
-                    new actions.Action(function (emit) {
+                    new core.Action(function (emit) {
                         emit(1);
                         emit(2);
                     }).run(function (value) {
                         arr.push(value);
                     });
-                    new actions.Action(function (emit) {
+                    new core.Action(function (emit) {
                         emit(1);
                         emit(2);
                     }).run(function (value) {
@@ -73,11 +73,11 @@ describe("actions", function () {
         describe("#bind(func)", function () {
             it("should bind the action and the given function which returns an action", function () {
                 var x = false;
-                var actionA = new actions.Action(function (emit) {
+                var actionA = new core.Action(function (emit) {
                     emit(true);
                 });
                 var func = function (value) {
-                    return new actions.Action(function (emit) {
+                    return new core.Action(function (emit) {
                         x = value;
                         emit(undefined);
                     });
@@ -90,11 +90,11 @@ describe("actions", function () {
         describe("#then(action)", function () {
             it("should bind the action and the given action", function () {
                 var x = [];
-                var actionA = new actions.Action(function (emit) {
+                var actionA = new core.Action(function (emit) {
                     x.push(1);
                     emit(undefined);
                 });
-                var actionB = new actions.Action(function (emit) {
+                var actionB = new core.Action(function (emit) {
                     x.push(2);
                     emit(undefined);
                 });
@@ -105,7 +105,7 @@ describe("actions", function () {
 
         describe("#map(func)", function () {
             it("should map the given function to each emitted values", function () {
-                var action = new actions.Action(function (emit) {
+                var action = new core.Action(function (emit) {
                     emit(1);
                     emit(2);
                 });
@@ -121,7 +121,7 @@ describe("actions", function () {
 
         describe("#filter(func)", function () {
             it("should filter each emitted values by the given function", function () {
-                var action = new actions.Action(function (emit) {
+                var action = new core.Action(function (emit) {
                     emit(1);
                     emit(2);
                     emit(3);
@@ -139,7 +139,7 @@ describe("actions", function () {
 
         describe("#reduce(func, initValue)", function () {
             it("shoud accumulate emitted values by the given function", function () {
-                var action = new actions.Action(function (emit) {
+                var action = new core.Action(function (emit) {
                     emit(1);
                     emit(2);
                     emit(3);
@@ -157,11 +157,11 @@ describe("actions", function () {
 
         describe("#merge(action)", function () {
             it("should merge the action and the given action", function () {
-                var actionA = new actions.Action(function (emit) {
+                var actionA = new core.Action(function (emit) {
                     emit(1);
                     emit(2);
                 });
-                var actionB = new actions.Action(function (emit) {
+                var actionB = new core.Action(function (emit) {
                     emit(3);
                     emit(4);
                 });
@@ -179,7 +179,7 @@ describe("actions", function () {
     describe("pure(value)", function () {
         it("should create an action which emits the given value only once", function () {
             var flag = false;
-            var action = actions.pure(true);
+            var action = core.pure(true);
             action.run(function (value) {
                 expect(flag).to.be.false;
                 expect(value).to.be.true;
@@ -190,9 +190,9 @@ describe("actions", function () {
 
     it("should satisfy the monad laws", function () {
         (function () {
-            var action = actions.pure(1);
+            var action = core.pure(1);
             var func = function (value) {
-                return new actions.Action(function (emit) {
+                return new core.Action(function (emit) {
                     emit(value);
                     emit(value * 2);
                 });
@@ -218,14 +218,14 @@ describe("actions", function () {
         })();
 
         (function () {
-            var action = new actions.Action(function (emit) {
+            var action = new core.Action(function (emit) {
                 emit(1);
                 emit(2);
             });
 
             var x = (function () {
                 var arr = [];
-                action.bind(actions.pure).run(function (value) {
+                action.bind(core.pure).run(function (value) {
                     arr.push(value);
                 });
                 return arr;
@@ -243,18 +243,18 @@ describe("actions", function () {
         })();
 
         (function () {
-            var action = new actions.Action(function (emit) {
+            var action = new core.Action(function (emit) {
                 emit(1);
                 emit(2);
             });
             var f = function (value) {
-                return new actions.Action(function (emit) {
+                return new core.Action(function (emit) {
                     emit(value + 1);
                     emit(value + 2);
                 });
             };
             var g = function (value) {
-                return new actions.Action(function (emit) {
+                return new core.Action(function (emit) {
                     emit(value * 2);
                     emit(value * 3);
                 });
