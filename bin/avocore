@@ -1,0 +1,29 @@
+#!/usr/bin/env node
+
+/*
+ * Avocore
+ * copyright (c) 2015 Susisu
+ */
+
+"use strict";
+
+var fs        = require("fs"),
+    commander = require("commander");
+
+var packageInfo = require("../package.json");
+
+process.title = "avocore";
+
+commander.version(packageInfo.version, "-v, --version");
+
+commander
+    .command("run <file>")
+    .description("run bot script")
+    .action(function (file) {
+        var bot = require(process.cwd() + file);
+        bot.forEach(function (action) {
+            action.run();
+        });
+    });
+
+commander.parse(process.argv);
