@@ -20,7 +20,7 @@ commander
     .command("run <file>")
     .description("run bot script")
     .action(function (file) {
-        var bot = require(process.cwd() + file);
+        var bot = require(process.cwd() + "/" + file);
         bot.forEach(function (action) {
             action.run();
         });
