@@ -29,7 +29,7 @@
   "dependencies": {
     "commander": "^2.8.1",
     "cron": "^1.0.9",
-    "request": "^2.55.0"
+    "twitter": "^1.2.5"
   },
   "devDependencies": {
     "chai": "^2.3.0",
