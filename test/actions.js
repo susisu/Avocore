@@ -71,7 +71,7 @@ describe("actions", function () {
         });
 
         describe("#bind(func)", function () {
-            it("should bind an action and a function which returns an action", function () {
+            it("should bind the action and the given function which returns an action", function () {
                 var x = false;
                 var actionA = new actions.Action(function (emit) {
                     emit(true);
@@ -88,7 +88,7 @@ describe("actions", function () {
         });
 
         describe("#then(action)", function () {
-            it("should bind two actions", function () {
+            it("should bind the action and the given action", function () {
                 var x = [];
                 var actionA = new actions.Action(function (emit) {
                     x.push(1);
@@ -100,6 +100,78 @@ describe("actions", function () {
                 });
                 expect(function () { actionA.then(actionB).run(); }).not.to.throw(Error);
                 expect(x).to.deep.equal([1, 2]);
+            });
+        });
+
+        describe("#map(func)", function () {
+            it("should map the given function to each emitted values", function () {
+                var action = new actions.Action(function (emit) {
+                    emit(1);
+                    emit(2);
+                });
+                var x = [];
+                action
+                    .map(function (value) { return value * 2; })
+                    .run(function (value) {
+                        x.push(value);
+                    });
+                expect(x).to.deep.equal([2, 4]);
+            });
+        });
+
+        describe("#filter(func)", function () {
+            it("should filter each emitted values by the given function", function () {
+                var action = new actions.Action(function (emit) {
+                    emit(1);
+                    emit(2);
+                    emit(3);
+                    emit(4);
+                });
+                var x = [];
+                action
+                    .filter(function (value) { return value % 2 == 0; })
+                    .run(function (value) {
+                        x.push(value);
+                    });
+                expect(x).to.deep.equal([2, 4]);
+            });
+        });
+
+        describe("#reduce(func, initValue)", function () {
+            it("shoud accumulate emitted values by the given function", function () {
+                var action = new actions.Action(function (emit) {
+                    emit(1);
+                    emit(2);
+                    emit(3);
+                    emit(4);
+                });
+                var x = [];
+                action
+                    .reduce(function (accum, value) { return accum + value; }, 0)
+                    .run(function (value) {
+                        x.push(value);
+                    });
+                expect(x).to.deep.equal([1, 3, 6, 10]);
+            });
+        });
+
+        describe("#merge(action)", function () {
+            it("should merge the action and the given action", function () {
+                var actionA = new actions.Action(function (emit) {
+                    emit(1);
+                    emit(2);
+                });
+                var actionB = new actions.Action(function (emit) {
+                    emit(3);
+                    emit(4);
+                });
+                var x = [];
+                actionA
+                    .merge(actionB)
+                    .run(function (value) {
+                        x.push(value);
+                    });
+                expect(x).to.deep.equal([1, 2, 3, 4]);
             });
         });
     });
