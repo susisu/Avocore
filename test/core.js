@@ -174,6 +174,20 @@ describe("core", function () {
                 expect(x).to.deep.equal([1, 2, 3, 4]);
             });
         });
+
+        describe("#discard()", function () {
+            it("should discard the action and emit undefined only once", function () {
+                var action = new core.Action(function (emit) {
+                    emit(1);
+                    emit(2);
+                });
+                var x = [];
+                action.discard().run(function (value) {
+                    x.push(value);
+                });
+                expect(x).to.deep.equal([undefined]);
+            });
+        });
     });
 
     describe("pure(value)", function () {
@@ -186,6 +200,62 @@ describe("core", function () {
                 flag = true;
             });
         });
+    });
+
+    it("should satisfy the functor laws", function () {
+        (function () {
+            var action = new core.Action(function (emit) {
+                emit(1);
+                emit(2);
+            });
+            var id = function (x) { return x; }
+
+            var x = (function () {
+                var arr = [];
+                core.map(id)(action).run(function (value) {
+                    arr.push(value);
+                });
+                return arr;
+            })();
+
+            var y = (function () {
+                var arr = [];
+                id(action).run(function (value) {
+                    arr.push(value);
+                });
+                return arr;
+            })();
+
+            expect(x).to.deep.equal(y);
+        })();
+
+        (function () {
+            var action = new core.Action(function (emit) {
+                emit(1);
+                emit(2);
+            });
+            var f = function (x) { return x + 1; };
+            var g = function (x) { return x * 3; };
+            var compose = function (g, f) { return function (x) { return g(f(x)); }};
+
+            var x = (function () {
+                var arr = [];
+                core.map(compose(g, f))(action).run(function (value) {
+                    arr.push(value);
+                });
+                return arr;
+            })();
+
+            var y = (function () {
+                var arr = [];
+                compose(core.map(g), core.map(f))(action).run(function (value) {
+                    arr.push(value);
+                });
+                return arr;
+            })();
+
+            expect(x).to.deep.equal(y);
+        })();
     });
 
     it("should satisfy the monad laws", function () {
